@@ -36,6 +36,7 @@ from superset.mcp_service.chart.schemas import (
     FilterConfig,
     GenerateChartResponse,
     LegendConfig,
+    MixedTimeseriesChartConfig,
     TableChartConfig,
     UpdateChartRequest,
     XYChartConfig,
@@ -737,6 +738,36 @@ class TestBuildUpdatePayload:
         assert result["slice_name"] == "Existing Name"
         # query_context must be cleared so get_chart_data uses updated params
         assert result["query_context"] is None
+
+    def test_config_update_preserves_unrelated_mixed_timeseries_settings(self):
+        """Save payload retains settings outside the simplified config schema."""
+        config = MixedTimeseriesChartConfig(
+            x=ColumnRef(name="ds"),
+            y=[ColumnRef(name="new_primary", aggregate="SUM")],
+            y_secondary=[ColumnRef(name="new_secondary", aggregate="SUM")],
+        )
+        request = UpdateChartRequest(identifier=1, config=config)
+        chart = Mock(
+            id=1,
+            datasource_id=7,
+            slice_name="Year-over-year metrics",
+            params=json.dumps(
+                {
+                    "viz_type": "mixed_timeseries",
+                    "time_compare": ["1 year ago"],
+                    "comparison_type_b": "percentage",
+                    "y_axis_format": ",.2f",
+                }
+            ),
+        )
+
+        result = _build_update_payload(request, chart, parsed_config=config)
+
+        assert isinstance(result, dict)
+        saved_form_data = json.loads(result["params"])
+        assert saved_form_data["time_compare"] == ["1 year ago"]
+        assert saved_form_data["comparison_type_b"] == "percentage"
+        assert saved_form_data["y_axis_format"] == ",.2f"
 
     def test_add_columns_preserves_existing_columns_and_metrics(self):
         """An additive update does not require reconstructing the table."""

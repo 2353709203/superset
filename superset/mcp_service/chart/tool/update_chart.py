@@ -229,11 +229,15 @@ def _build_update_payload(
     )
 
     if parsed_config is not None:
+        existing_form_data = _get_existing_form_data(chart)
         new_form_data = map_config_to_form_data(
             parsed_config, dataset_id=effective_dataset_id
         )
         new_form_data.pop("_mcp_warnings", None)
-        merge_table_column_config(_get_existing_form_data(chart), new_form_data)
+        merge_table_column_config(existing_form_data, new_form_data)
+        new_form_data = _merge_replacement_config(
+            existing_form_data, new_form_data, parsed_config
+        )
 
         chart_name = (
             request.chart_name
