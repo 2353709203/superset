@@ -155,6 +155,14 @@ if os.getenv("CYPRESS_CONFIG") == "true":
 # Optionally import superset_config_docker.py (which will have been included on
 # the PYTHONPATH) in order to allow for local settings to be overridden
 #
+# Fork i18n: only English + Simplified Chinese. Do not commit compiled
+# messages.json / messages.mo / translation_index.json (gitignored); they are
+# generated when BUILD_TRANSLATIONS=true.
+LANGUAGES = {
+    "en": {"flag": "us", "name": "English"},
+    "zh": {"flag": "cn", "name": "简体中文"},
+}
+
 try:
     import superset_config_docker
     from superset_config_docker import *  # noqa: F403
