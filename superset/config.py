@@ -566,9 +566,11 @@ LANGUAGES = {
     "tr": {"flag": "tr", "name": "Turkish"},
     "ta": {"flag": "in", "name": "Tamil"},
 }
-# Turning off i18n by default as translation in most languages are
-# incomplete and not well maintained.
-LANGUAGES = {}
+# 二次开发：仅启用英文与简体中文。不要加入 zh_TW（本期明确不做）。
+LANGUAGES = {
+    "en": {"flag": "us", "name": "English"},
+    "zh": {"flag": "cn", "name": "简体中文"},
+}
 
 
 # Override the default d3 locale format
